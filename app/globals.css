@@ -1,26 +1,150 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000101;
+  --foreground: #fafafa;
+  --neon-green: #86efac;
+  --neon-blue: #93c5fd;
+  --neon-purple: #d8b4fe;
+  --neon-pink: #fb6521;
+  --dark-gray: #1a1a1a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-neon-green: var(--neon-green);
+  --color-neon-blue: var(--neon-blue);
+  --color-neon-purple: var(--neon-purple);
+  --color-neon-pink: var(--neon-pink);
+  --color-dark-gray: var(--dark-gray);
+  --font-mono: 'Courier New', 'Courier', monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Courier New', Courier, monospace;
+  overflow-x: hidden;
+}
+
+/* Glitch effect for headings */
+@keyframes glitch {
+  0% {
+    text-shadow: 2px 2px var(--neon-green), -2px -2px var(--neon-blue);
+  }
+  25% {
+    text-shadow: -2px 2px var(--neon-blue), 2px -2px var(--neon-pink);
+  }
+  50% {
+    text-shadow: 2px -2px var(--neon-purple), -2px 2px var(--neon-green);
+  }
+  75% {
+    text-shadow: -2px -2px var(--neon-pink), 2px 2px var(--neon-blue);
+  }
+  100% {
+    text-shadow: 2px 2px var(--neon-green), -2px -2px var(--neon-blue);
+  }
+}
+
+.glitch {
+  animation: glitch 3s infinite;
+}
+
+/* Terminal cursor blink */
+@keyframes blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+.cursor::after {
+  content: '▋';
+  animation: blink 1s infinite;
+  color: var(--neon-green);
+}
+
+/* Neon glow effect */
+.neon-glow {
+  text-shadow: 0 0 5px var(--neon-green),
+               0 0 10px var(--neon-green),
+               0 0 20px var(--neon-green),
+               0 0 40px var(--neon-green);
+}
+
+/* Scan lines effect */
+.scanlines {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanlines::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Button styles */
+.btn-neon {
+  position: relative;
+  padding: 1rem 2rem;
+  border: 2px solid var(--neon-green);
+  color: var(--neon-green);
+  background: transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.btn-neon:hover {
+  background: var(--neon-green);
+  color: var(--background);
+  box-shadow: 0 0 20px var(--neon-green),
+              0 0 40px var(--neon-green);
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Loading dots animation */
+@keyframes dotPulse {
+  0%, 20% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.loading-dots span {
+  animation: dotPulse 1.4s infinite;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
 }
