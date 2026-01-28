@@ -26,25 +26,25 @@ export default function Home() {
                 SEVILLA 2026
               </p>
               <p className="text-xl md:text-2xl text-neon-blue mb-2">
-                18 - 22 ABRIL
+                19 - 23 ABRIL
               </p>
               <p className="text-base md:text-lg text-neon-purple">
-                5 días // 10 builders // 1 casa
+                4 días // 10 builders // 1 casa
               </p>
             </div>
 
             <p className="text-base md:text-xl mb-8 text-foreground/80 max-w-2xl">
-              Un retiro de 5 días en Sevilla donde builders construyen proyectos,
+              Un retiro de 4 días en Sevilla donde builders construyen proyectos,
               comparten código y disfrutan de la Feria de Abril.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                onClick={() => setShowTerminal(true)}
+              <a
+                href="#register"
                 className="btn-neon text-center"
               >
                 Aplicar ahora
-              </button>
+              </a>
               <a
                 href="#about"
                 className="btn-neon border-neon-blue text-neon-blue hover:bg-neon-blue text-center"
@@ -72,7 +72,7 @@ export default function Home() {
 
             <div className="space-y-6 text-base md:text-lg">
               <p className="text-foreground/90">
-                <span className="text-neon-purple">$</span> Hacker House es un retiro de 5 días donde builders que construyen cosas
+                <span className="text-neon-purple">$</span> Hacker House es un retiro de 4 días donde builders que construyen cosas
                 se juntan a trabajar en sus proyectos en un ambiente relajado y productivo.
               </p>
 
@@ -92,8 +92,8 @@ export default function Home() {
               </div>
 
               <p className="text-foreground/90">
-                <span className="text-neon-purple">$</span> La casa está en Sevilla y coincide con la Feria de Abril.
-                Trabajo durante el día, Feria por la noche (opcional).
+                <span className="text-neon-purple">$</span> Sevilla, coincidiendo con la Feria de Abril.
+                Trabajo durante el día, Feria por la noche.
               </p>
             </div>
           </div>
@@ -113,33 +113,33 @@ export default function Home() {
             <div className="space-y-6">
               {[
                 {
-                  day: "VIERNES 18",
+                  day: "SÁBADO 19",
                   title: "setup.sh",
-                  desc: "Check-in a partir de las 18:00. Cena de bienvenida y presentaciones.",
+                  desc: "Llegadas, trabajo, deporte, dinámica y salida por Sevilla",
                   color: "neon-green"
                 },
                 {
-                  day: "SÁBADO 19",
+                  day: "DOMINGO 20",
                   title: "build.sh",
-                  desc: "Día completo de trabajo. Cada uno en su proyecto. Comida compartida.",
+                  desc: "Trabajo, deporte, dinámica y noche libre",
                   color: "neon-blue"
                 },
                 {
-                  day: "DOMINGO 20",
-                  title: "code.sh",
-                  desc: "Más construcción. Por la noche, opcional visita a la Feria.",
+                  day: "LUNES 21",
+                  title: "grind.sh",
+                  desc: "Deporte, día laboral completo, pescaíto en Feria 🎡",
                   color: "neon-purple"
                 },
                 {
-                  day: "LUNES 21",
+                  day: "MARTES 22",
                   title: "ship.sh",
-                  desc: "Sprint final. Feedback sessions. Cena en la Feria (opcional).",
+                  desc: "Trabajo soft, tarde libre, Feria por la noche 🎪",
                   color: "neon-pink"
                 },
                 {
-                  day: "MARTES 22",
-                  title: "demo.sh",
-                  desc: "Última mañana. Show & tell de lo construido. Check-out 14:00.",
+                  day: "MIÉRCOLES 23",
+                  title: "exit.sh",
+                  desc: "Desayuno y despedida. Hasta la próxima, builders.",
                   color: "neon-green"
                 }
               ].map((day, i) => (
@@ -183,8 +183,8 @@ export default function Home() {
               </p>
 
               <p className="text-foreground/80">
-                La casa está en Sevilla y tiene capacidad para 13 personas (host + 12 invitados).
-                Espacio de trabajo, WiFi de fibra, y todo lo necesario para construir.
+                La casa tiene capacidad para 10 personas.
+                Espacio de trabajo, WiFi, y todo lo necesario para construir.
               </p>
 
               <div className="grid md:grid-cols-2 gap-6 mt-8">
@@ -194,7 +194,7 @@ export default function Home() {
                     <li>→ Alojamiento (habitación compartida)</li>
                     <li>→ Desayunos y comidas</li>
                     <li>→ Espacio de trabajo</li>
-                    <li>→ WiFi fibra 1Gb</li>
+                    <li>→ WiFi</li>
                     <li>→ Café ilimitado ☕</li>
                   </ul>
                 </div>
@@ -232,7 +232,7 @@ export default function Home() {
               {[
                 {
                   q: "¿Cuánto cuesta?",
-                  a: "El evento tiene un coste aproximado de 50-80€ por persona para cubrir comida, limpieza y gastos. Lo calculamos al final y dividimos entre todos."
+                  a: "15€ por noche para cubrir comida, limpieza y gastos. Haremos bote y lo que sobre lo repartimos o lo metemos a la ruleta."
                 },
                 {
                   q: "¿Necesito saber programar?",
@@ -243,7 +243,7 @@ export default function Home() {
                   a: "Tu laptop, cargador, y ganas de construir. Todo lo demás está cubierto (ropa de cama, toallas, etc)."
                 },
                 {
-                  q: "¿Tengo que estar los 5 días completos?",
+                  q: "¿Tengo que estar los 4 días completos?",
                   a: "Idealmente sí, pero entendemos si solo puedes estar algunos días. Indícalo en el formulario."
                 },
                 {
@@ -252,7 +252,7 @@ export default function Home() {
                 },
                 {
                   q: "¿Qué pasa con la Feria?",
-                  a: "La Feria está ahí si quieres ir por la noche. Es totalmente opcional. No hay presión."
+                  a: "Por la noche salimos a la Feria. Trabajo de día, fiesta de noche."
                 }
               ].map((faq, i) => (
                 <div key={i} className="border-l-4 border-neon-blue/50 pl-6">
@@ -314,15 +314,15 @@ export default function Home() {
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <div>
                 <p className="text-neon-green font-bold mb-2">HACKER HOUSE // SEVILLA 2026</p>
-                <p className="text-sm text-foreground/60">18-22 Abril // 10 builders // 1 casa</p>
+                <p className="text-sm text-foreground/60">19-23 Abril // 10 builders // 1 casa</p>
               </div>
 
               <div className="flex gap-6 text-sm">
                 <a href="mailto:byferromero@gmail.com" className="text-neon-blue hover:text-neon-green transition-colors">
                   Email
                 </a>
-                <a href="https://twitter.com/yourhandle" className="text-neon-blue hover:text-neon-green transition-colors">
-                  Twitter
+                <a href="https://linkedin.com/in/byferromero" target="_blank" rel="noopener noreferrer" className="text-neon-blue hover:text-neon-green transition-colors">
+                  LinkedIn
                 </a>
               </div>
             </div>
