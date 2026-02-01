@@ -7,11 +7,33 @@ interface TerminalLine {
   text: string;
 }
 
+interface Option {
+  value: string;
+  label: string;
+}
+
 interface Question {
   id: string;
   question: string;
+  questionMobile?: string; // Versión corta para móvil
   placeholder?: string;
   validate?: (value: string) => string | null;
+  options?: Option[]; // Opciones para mostrar como botones en móvil
+  multiSelect?: boolean; // Si permite selección múltiple
+}
+
+// Hook para detectar móvil
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
 }
 
 const questions: Question[] = [
@@ -40,13 +62,27 @@ const questions: Question[] = [
   {
     id: 'experience',
     question: '> ¿Cómo te describes?\n  [1] Vibe Coder (IA/no-code)\n  [2] Indie Hacker\n  [3] Developer profesional\n  [4] Maker / Builder\n  [5] Otro\n> Elige número(s) separados por comas:',
-    placeholder: 'Ej: 1,2'
+    questionMobile: '> ¿Cómo te describes?',
+    placeholder: 'Ej: 1,2',
+    options: [
+      { value: '1', label: 'Vibe Coder' },
+      { value: '2', label: 'Indie Hacker' },
+      { value: '3', label: 'Developer' },
+      { value: '4', label: 'Maker' },
+      { value: '5', label: 'Otro' }
+    ],
+    multiSelect: true
   },
   {
     id: 'accommodation',
     question: '> ¿Necesitas alojamiento?\n  [1] Sí, necesito alojamiento\n  [2] No, tengo alojamiento\n> Elige 1 o 2:',
+    questionMobile: '> ¿Necesitas alojamiento?',
     placeholder: '1 o 2',
-    validate: (v) => !['1', '2'].includes(v.trim()) ? 'Responde 1 o 2' : null
+    validate: (v) => !['1', '2'].includes(v.trim()) ? 'Responde 1 o 2' : null,
+    options: [
+      { value: '1', label: 'Sí, necesito' },
+      { value: '2', label: 'No, tengo' }
+    ]
   },
   {
     id: 'dietary',
@@ -61,11 +97,21 @@ const questions: Question[] = [
   {
     id: 'days',
     question: '> ¿Qué días puedes venir?\n  [1] Viernes 18\n  [2] Sábado 19\n  [3] Domingo 20\n  [4] Lunes 21\n  [5] Martes 22\n> Números separados por comas:',
-    placeholder: 'Ej: 1,2,3,4,5'
+    questionMobile: '> ¿Qué días puedes venir?',
+    placeholder: 'Ej: 1,2,3,4,5',
+    options: [
+      { value: '1', label: 'Vie 18' },
+      { value: '2', label: 'Sáb 19' },
+      { value: '3', label: 'Dom 20' },
+      { value: '4', label: 'Lun 21' },
+      { value: '5', label: 'Mar 22' }
+    ],
+    multiSelect: true
   },
   {
     id: 'loom',
     question: '> Graba un Loom (<2 min) explicando por qué deberíamos elegirte.\n> Comparte el link de tu video:',
+    questionMobile: '> Link de tu Loom (<2 min):',
     placeholder: 'https://www.loom.com/share/...',
     validate: (v) => {
       if (!v.trim()) return 'El video de Loom es obligatorio';
@@ -87,9 +133,11 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isTyping, setIsTyping] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hasBooted = useRef(false);
+  const isMobile = useIsMobile();
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -98,12 +146,23 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
     }
   }, [lines]);
 
-  // Focus input when not typing
+  // Focus input when not typing and auto-scroll on mobile
   useEffect(() => {
     if (!isTyping) {
       inputRef.current?.focus();
+      // Auto-scroll al input en móvil para que siempre sea visible
+      if (isMobile) {
+        setTimeout(() => {
+          inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
     }
-  }, [isTyping, currentQuestion]);
+  }, [isTyping, currentQuestion, isMobile]);
+
+  // Reset selected options when question changes
+  useEffect(() => {
+    setSelectedOptions([]);
+  }, [currentQuestion]);
 
   // Initialize terminal with boot sequence (only once)
   useEffect(() => {
@@ -114,18 +173,27 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
   }, []);
 
   const bootSequence = async () => {
+    // Delays más cortos en móvil para llegar rápido a las preguntas
+    const d = (ms: number) => isMobile ? Math.floor(ms / 2) : ms;
+
     // Boot messages
-    await addLine({ type: 'system', text: '> Inicializando sistema de registro...' }, 300);
-    await addLine({ type: 'loading', text: '> ' }, 800); // Loading dots
+    await addLine({ type: 'system', text: '> Inicializando sistema de registro...' }, d(300));
+    await addLine({ type: 'loading', text: '> ' }, d(800)); // Loading dots
     await removeLine(); // Remove loading
-    await addLine({ type: 'system', text: '> ✓ Conexión establecida' }, 200);
-    await addLine({ type: 'system', text: '> Hacker House Registration System v2.0' }, 400);
-    await addLine({ type: 'system', text: '> ' }, 100);
-    await addLine({ type: 'system', text: '> Responde las siguientes preguntas. Presiona ENTER para enviar cada respuesta.' }, 600);
-    await addLine({ type: 'system', text: '> ' }, 300);
+    await addLine({ type: 'system', text: '> ✓ Conexión establecida' }, d(200));
+    await addLine({ type: 'system', text: '> Hacker House Registration System v2.0' }, d(400));
+    await addLine({ type: 'system', text: '> ' }, d(100));
+    const instructionText = isMobile
+      ? '> Responde las preguntas. Toca ENVIAR para continuar.'
+      : '> Responde las siguientes preguntas. Presiona ENTER para enviar cada respuesta.';
+    await addLine({ type: 'system', text: instructionText }, d(600));
+    await addLine({ type: 'system', text: '> ' }, d(300));
 
     // Show first question with typing effect
-    await showQuestionWithTyping(questions[0].question);
+    const questionText = isMobile && questions[0].questionMobile
+      ? questions[0].questionMobile
+      : questions[0].question;
+    await showQuestionWithTyping(questionText);
   };
 
   const addLine = (line: TerminalLine, delay: number = 0): Promise<void> => {
@@ -149,6 +217,8 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
   const showQuestionWithTyping = async (questionText: string) => {
     setIsTyping(true);
     const questionLines = questionText.split('\n');
+    // Typing más rápido en móvil (10ms vs 30ms)
+    const typingSpeed = isMobile ? 10 : 30;
 
     for (const line of questionLines) {
       // Type each character
@@ -165,7 +235,7 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
             newLines[newLines.length - 1] = { type: 'question', text: currentText };
             return newLines;
           });
-          await new Promise(resolve => setTimeout(resolve, 30)); // Speed of typing
+          await new Promise(resolve => setTimeout(resolve, typingSpeed));
         }
       }
     }
@@ -207,17 +277,73 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
 
     // Next question or finish
     if (currentQuestion < questions.length - 1) {
-      await addLine({ type: 'system', text: '>' }, 200);
+      const d = (ms: number) => isMobile ? Math.floor(ms / 2) : ms;
+      await addLine({ type: 'system', text: '>' }, d(200));
 
       // Show loading while "thinking"
-      await addLine({ type: 'loading', text: '> ' }, 400);
+      await addLine({ type: 'loading', text: '> ' }, d(400));
       await removeLine(); // Remove loading
 
       setCurrentQuestion(prev => prev + 1);
-      await showQuestionWithTyping(questions[currentQuestion + 1].question);
+      const nextQ = questions[currentQuestion + 1];
+      const questionText = isMobile && nextQ.questionMobile
+        ? nextQ.questionMobile
+        : nextQ.question;
+      await showQuestionWithTyping(questionText);
     } else {
       // Finished - send data
       await submitForm({ ...newAnswers, [currentQ.id]: trimmedInput });
+    }
+  };
+
+  // Handler para selección de opciones táctiles
+  const handleOptionSelect = (value: string) => {
+    const currentQ = questions[currentQuestion];
+    if (currentQ.multiSelect) {
+      setSelectedOptions(prev =>
+        prev.includes(value)
+          ? prev.filter(v => v !== value)
+          : [...prev, value]
+      );
+    } else {
+      setSelectedOptions([value]);
+    }
+  };
+
+  // Enviar selección de opciones
+  const handleOptionsSubmit = async () => {
+    if (selectedOptions.length === 0) return;
+
+    const currentQ = questions[currentQuestion];
+    const answer = selectedOptions.sort().join(',');
+
+    // Save answer
+    const newAnswers = { ...answers, [currentQ.id]: answer };
+    setAnswers(newAnswers);
+
+    // Mostrar respuesta con labels
+    const labels = selectedOptions
+      .map(v => currentQ.options?.find(o => o.value === v)?.label)
+      .filter(Boolean)
+      .join(', ');
+    await addLine({ type: 'answer', text: `> ${labels}` }, 0);
+    setSelectedOptions([]);
+
+    // Next question or finish
+    if (currentQuestion < questions.length - 1) {
+      const d = (ms: number) => isMobile ? Math.floor(ms / 2) : ms;
+      await addLine({ type: 'system', text: '>' }, d(200));
+      await addLine({ type: 'loading', text: '> ' }, d(400));
+      await removeLine();
+
+      setCurrentQuestion(prev => prev + 1);
+      const nextQ = questions[currentQuestion + 1];
+      const questionText = isMobile && nextQ.questionMobile
+        ? nextQ.questionMobile
+        : nextQ.question;
+      await showQuestionWithTyping(questionText);
+    } else {
+      await submitForm(newAnswers);
     }
   };
 
@@ -274,22 +400,27 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
     }
   };
 
+  // Verificar si la pregunta actual tiene opciones (para mostrar botones en móvil)
+  const currentQ = questions[currentQuestion];
+  const showOptionButtons = isMobile && currentQ?.options && !isTyping && !isSubmitting && currentQuestion < questions.length;
+
   return (
-    <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl h-[80vh] bg-black border-2 flex flex-col" style={{ borderColor: 'var(--neon-green)', boxShadow: '0 0 50px rgba(134, 239, 172, 0.3)' }}>
-        {/* Terminal Header */}
-        <div className="border-b-2 px-4 py-2 flex items-center justify-between" style={{ backgroundColor: 'var(--dark-gray)', borderColor: 'var(--neon-green)' }}>
+    <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-2 sm:p-4">
+      <div className="w-full max-w-4xl h-[100dvh] sm:h-[80vh] bg-black border-2 flex flex-col terminal-container" style={{ borderColor: 'var(--neon-green)', boxShadow: '0 0 50px rgba(134, 239, 172, 0.3)' }}>
+        {/* Terminal Header - más compacto en móvil */}
+        <div className="border-b-2 px-2 py-1 sm:px-4 sm:py-2 flex items-center justify-between" style={{ backgroundColor: 'var(--dark-gray)', borderColor: 'var(--neon-green)' }}>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--neon-green)' }}></div>
-            <span className="ml-4 text-sm font-mono" style={{ color: 'var(--neon-green)' }}>
-              terminal@hackerhouse:~/register
+            <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500"></div>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-500"></div>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full" style={{ backgroundColor: 'var(--neon-green)' }}></div>
+            <span className="ml-2 sm:ml-4 text-xs sm:text-sm font-mono" style={{ color: 'var(--neon-green)' }}>
+              <span className="hidden sm:inline">terminal@hackerhouse:~/register</span>
+              <span className="sm:hidden">register</span>
             </span>
           </div>
           <button
             onClick={onClose}
-            className="hover:text-red-500 transition-colors text-lg font-bold"
+            className="hover:text-red-500 transition-colors text-base sm:text-lg font-bold p-1"
             style={{ color: 'var(--neon-green)' }}
           >
             [X]
@@ -323,9 +454,45 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
             </div>
           ))}
 
-          {/* Input Line */}
-          {!isSubmitting && !isTyping && currentQuestion < questions.length && (
-            <form onSubmit={handleSubmit} className="flex items-center gap-2 mt-2">
+          {/* Option Buttons para móvil */}
+          {showOptionButtons && (
+            <div className="mt-3 space-y-3">
+              <div className="flex flex-wrap gap-2">
+                {currentQ.options?.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleOptionSelect(option.value)}
+                    className={`px-3 py-2 font-mono text-sm border-2 rounded transition-all min-h-[44px] ${
+                      selectedOptions.includes(option.value)
+                        ? 'bg-[var(--neon-green)] text-black border-[var(--neon-green)]'
+                        : 'bg-transparent border-[var(--neon-green)] text-[var(--neon-green)]'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+              {selectedOptions.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleOptionsSubmit}
+                  className="w-full py-3 font-mono text-sm border-2 rounded bg-[var(--neon-green)] text-black border-[var(--neon-green)] font-bold min-h-[48px]"
+                >
+                  ENVIAR →
+                </button>
+              )}
+              {currentQ.multiSelect && (
+                <p className="text-xs font-mono" style={{ color: 'var(--neon-blue)' }}>
+                  Puedes seleccionar varios
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Input Line - oculto cuando hay option buttons */}
+          {!isSubmitting && !isTyping && currentQuestion < questions.length && !showOptionButtons && (
+            <form onSubmit={handleSubmit} className="flex items-center gap-2 mt-2 py-2 sm:py-0">
               <span style={{ color: 'var(--neon-green)' }}>&gt;</span>
               <input
                 ref={inputRef}
@@ -334,20 +501,35 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={questions[currentQuestion]?.placeholder}
-                className="flex-1 bg-transparent outline-none font-mono placeholder:opacity-30"
+                className="flex-1 bg-transparent outline-none font-mono placeholder:opacity-30 text-base sm:text-sm min-h-[44px] sm:min-h-0"
                 style={{ color: 'var(--foreground)' }}
                 autoComplete="off"
               />
               <span className="animate-pulse" style={{ color: 'var(--neon-green)' }}>▋</span>
             </form>
           )}
+
+          {/* Botón enviar visible en móvil para inputs de texto */}
+          {isMobile && !isSubmitting && !isTyping && currentQuestion < questions.length && !showOptionButtons && (
+            <button
+              type="button"
+              onClick={() => {
+                const form = document.querySelector('form');
+                if (form) form.requestSubmit();
+              }}
+              className="mt-2 w-full py-3 font-mono text-sm border-2 rounded bg-[var(--neon-green)] text-black border-[var(--neon-green)] font-bold min-h-[48px]"
+            >
+              ENVIAR →
+            </button>
+          )}
         </div>
 
-        {/* Terminal Footer */}
-        <div className="border-t-2 px-4 py-2 text-xs font-mono" style={{ backgroundColor: 'var(--dark-gray)', borderColor: 'var(--neon-green)', color: 'var(--neon-blue)' }}>
+        {/* Terminal Footer - más compacto en móvil */}
+        <div className="border-t-2 px-2 py-1 sm:px-4 sm:py-2 text-xs font-mono" style={{ backgroundColor: 'var(--dark-gray)', borderColor: 'var(--neon-green)', color: 'var(--neon-blue)' }}>
           <div className="flex justify-between">
-            <span>Pregunta {Math.min(currentQuestion + 1, questions.length)}/{questions.length}</span>
-            <span>ESC para salir</span>
+            <span>{Math.min(currentQuestion + 1, questions.length)}/{questions.length}</span>
+            <span className="hidden sm:inline">ESC para salir</span>
+            <span className="sm:hidden">[X] cerrar</span>
           </div>
         </div>
       </div>
