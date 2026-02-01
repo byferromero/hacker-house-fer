@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Terminal from './components/Terminal';
+import { useState } from "react";
+import Terminal from "./components/Terminal";
 
 export default function Home() {
   const [showTerminal, setShowTerminal] = useState(false);
@@ -10,11 +10,15 @@ export default function Home() {
     <>
       <div className="scanlines min-h-screen">
         {/* Hero Section */}
-        <section className="min-h-screen flex flex-col items-center justify-center px-4 py-20">
+        <section className="min-h-screen flex flex-col items-center justify-center px-4 py-8 sm:py-20">
           <div className="max-w-4xl w-full">
             <div className="mb-8">
-              <p className="text-neon-green text-sm md:text-base mb-2">&gt; connection established_</p>
-              <p className="text-neon-blue text-sm md:text-base mb-4">&gt; loading hackerhouse.exe...</p>
+              <p className="text-neon-green text-sm md:text-base mb-2">
+                &gt; connection established_
+              </p>
+              <p className="text-neon-blue text-sm md:text-base mb-4">
+                &gt; loading hackerhouse.exe...
+              </p>
             </div>
 
             <h1 className="text-4xl md:text-7xl font-bold mb-6 glitch text-foreground">
@@ -34,20 +38,20 @@ export default function Home() {
             </div>
 
             <p className="text-base md:text-xl mb-8 text-foreground/80 max-w-2xl">
-              Un retiro de 4 días en Sevilla donde builders construyen proyectos,
-              comparten código y disfrutan de la Feria de Abril.
+              Un retiro de 4 días en Sevilla donde builders construyen
+              proyectos, comparten código y disfrutan de la Feria de Abril.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-row gap-2 sm:gap-4">
               <a
                 href="#register"
-                className="btn-neon text-center"
+                className="btn-neon flex items-center justify-center text-xs sm:text-base py-2 px-3 sm:py-4 sm:px-8 flex-1"
               >
                 Aplicar ahora
               </a>
               <a
                 href="#about"
-                className="btn-neon border-neon-blue text-neon-blue hover:bg-neon-blue text-center"
+                className="btn-neon border-neon-blue text-neon-blue hover:bg-neon-blue flex items-center justify-center text-xs sm:text-base py-2 px-3 sm:py-4 sm:px-8 flex-1"
               >
                 Leer más
               </a>
@@ -60,7 +64,10 @@ export default function Home() {
         </section>
 
         {/* About Section */}
-        <section id="about" className="min-h-screen flex items-center px-4 py-20 bg-dark-gray/30">
+        <section
+          id="about"
+          className="min-h-screen flex items-center px-4 py-20 bg-dark-gray/30"
+        >
           <div className="max-w-4xl mx-auto w-full">
             <div className="mb-8">
               <p className="text-neon-green text-sm mb-2">&gt; cat about.txt</p>
@@ -72,28 +79,45 @@ export default function Home() {
 
             <div className="space-y-6 text-base md:text-lg">
               <p className="text-foreground/90">
-                <span className="text-neon-purple">$</span> Hacker House es un retiro de 4 días donde builders que construyen cosas
-                se juntan a trabajar en sus proyectos en un ambiente relajado y productivo.
+                <span className="text-neon-purple">$</span> Hacker House es un
+                retiro de 4 días donde builders que construyen cosas se juntan a
+                trabajar en sus proyectos en un ambiente relajado y productivo.
               </p>
 
               <p className="text-foreground/90">
-                <span className="text-neon-purple">$</span> No es un hackathon competitivo. No es networking forzado.
-                Es simplemente gente que construye, comparte conocimiento y aprende juntos.
+                <span className="text-neon-purple">$</span> No es un hackathon
+                competitivo. No es networking forzado. Es simplemente gente que
+                construye, comparte conocimiento y aprende juntos.
               </p>
 
               <div className="border border-neon-green/30 p-6 mt-8">
-                <p className="text-neon-green mb-4 font-bold">// PERFIL IDEAL</p>
+                <p className="text-neon-green mb-4 font-bold">
+                  // PERFIL IDEAL
+                </p>
                 <ul className="space-y-2 text-foreground/80">
-                  <li><span className="text-neon-green">→</span> Vibe coders que construyen con IA</li>
-                  <li><span className="text-neon-green">→</span> Indie hackers con side projects</li>
-                  <li><span className="text-neon-green">→</span> Developers trabajando en algo propio</li>
-                  <li><span className="text-neon-green">→</span> Makers que quieren avanzar sus ideas</li>
+                  <li>
+                    <span className="text-neon-green">→</span> Vibe coders que
+                    construyen con IA
+                  </li>
+                  <li>
+                    <span className="text-neon-green">→</span> Indie hackers con
+                    side projects
+                  </li>
+                  <li>
+                    <span className="text-neon-green">→</span> Developers
+                    trabajando en algo propio
+                  </li>
+                  <li>
+                    <span className="text-neon-green">→</span> Makers que
+                    quieren avanzar sus ideas
+                  </li>
                 </ul>
               </div>
 
               <p className="text-foreground/90">
-                <span className="text-neon-purple">$</span> Sevilla, coincidiendo con la Feria de Abril.
-                Trabajo durante el día, Feria por la noche.
+                <span className="text-neon-purple">$</span> Sevilla,
+                coincidiendo con la Feria de Abril. Trabajo durante el día,
+                Feria por la noche.
               </p>
             </div>
           </div>
@@ -103,7 +127,9 @@ export default function Home() {
         <section className="min-h-screen flex items-center px-4 py-20">
           <div className="max-w-4xl mx-auto w-full">
             <div className="mb-8">
-              <p className="text-neon-green text-sm mb-2">&gt; ls -la schedule/</p>
+              <p className="text-neon-green text-sm mb-2">
+                &gt; ls -la schedule/
+              </p>
             </div>
 
             <h2 className="text-3xl md:text-5xl font-bold mb-12 text-neon-purple">
@@ -116,40 +142,44 @@ export default function Home() {
                   day: "SÁBADO 19",
                   title: "setup.sh",
                   desc: "Llegadas, trabajo, deporte, dinámica y salida por Sevilla",
-                  color: "neon-green"
+                  color: "neon-green",
                 },
                 {
                   day: "DOMINGO 20",
                   title: "build.sh",
                   desc: "Trabajo, deporte, dinámica y noche libre",
-                  color: "neon-blue"
+                  color: "neon-blue",
                 },
                 {
                   day: "LUNES 21",
                   title: "grind.sh",
                   desc: "Deporte, día laboral completo, pescaíto en Feria 🎡",
-                  color: "neon-purple"
+                  color: "neon-purple",
                 },
                 {
                   day: "MARTES 22",
                   title: "ship.sh",
                   desc: "Trabajo soft, tarde libre, Feria por la noche 🎪",
-                  color: "neon-pink"
+                  color: "neon-pink",
                 },
                 {
                   day: "MIÉRCOLES 23",
                   title: "exit.sh",
                   desc: "Desayuno y despedida. Hasta la próxima, builders.",
-                  color: "neon-green"
-                }
+                  color: "neon-green",
+                },
               ].map((day, i) => (
                 <div
                   key={i}
                   className="border-l-4 border-neon-green/50 pl-6 py-4 hover:border-neon-green transition-all"
                 >
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
-                    <span className="text-neon-green font-bold text-lg">{day.day}</span>
-                    <span className={`text-${day.color} text-xl font-mono`}>./{day.title}</span>
+                    <span className="text-neon-green font-bold text-lg">
+                      {day.day}
+                    </span>
+                    <span className={`text-${day.color} text-xl font-mono`}>
+                      ./{day.title}
+                    </span>
                   </div>
                   <p className="text-foreground/70">{day.desc}</p>
                 </div>
@@ -159,8 +189,9 @@ export default function Home() {
             <div className="mt-12 border border-neon-blue/30 p-6">
               <p className="text-neon-blue mb-2">// NOTA</p>
               <p className="text-foreground/80 text-sm">
-                La agenda es flexible. No hay horarios estrictos. Cada uno trabaja a su ritmo.
-                El objetivo es crear un ambiente productivo sin presión.
+                La agenda es flexible. No hay horarios estrictos. Cada uno
+                trabaja a su ritmo. El objetivo es crear un ambiente productivo
+                sin presión.
               </p>
             </div>
           </div>
@@ -183,8 +214,8 @@ export default function Home() {
               </p>
 
               <p className="text-foreground/80">
-                La casa tiene capacidad para 10 personas.
-                Espacio de trabajo, WiFi, y todo lo necesario para construir.
+                La casa tiene capacidad para 10 personas. Espacio de trabajo,
+                WiFi, y todo lo necesario para construir.
               </p>
 
               <div className="grid md:grid-cols-2 gap-6 mt-8">
@@ -232,31 +263,33 @@ export default function Home() {
               {[
                 {
                   q: "¿Cuánto cuesta?",
-                  a: "15€ por noche para cubrir comida, limpieza y gastos. Haremos bote y lo que sobre lo repartimos o lo metemos a la ruleta."
+                  a: "25€ por noche para cubrir comida, limpieza y gastos. Haremos bote y lo que sobre lo repartimos o lo metemos a la ruleta.",
                 },
                 {
                   q: "¿Necesito saber programar?",
-                  a: "No hace falta ser developer profesional. Si estás construyendo algo (con IA, no-code, o código tradicional), eres bienvenido."
+                  a: "No hace falta ser developer profesional. Si estás construyendo algo (con IA, no-code, o código tradicional), eres bienvenido.",
                 },
                 {
                   q: "¿Necesito traer algo?",
-                  a: "Tu laptop, cargador, y ganas de construir. Todo lo demás está cubierto (ropa de cama, toallas, etc)."
+                  a: "Tu laptop, cargador, y ganas de construir. Todo lo demás está cubierto (ropa de cama, toallas, etc).",
                 },
                 {
                   q: "¿Tengo que estar los 4 días completos?",
-                  a: "Idealmente sí, pero entendemos si solo puedes estar algunos días. Indícalo en el formulario."
+                  a: "Idealmente sí, pero entendemos si solo puedes estar algunos días. Indícalo en el formulario.",
                 },
                 {
                   q: "¿Hay que trabajar en equipo?",
-                  a: "No necesariamente. Cada uno trabaja en su proyecto. Pero si quieres colaborar o pedir feedback, adelante."
+                  a: "No necesariamente. Cada uno trabaja en su proyecto. Pero si quieres colaborar o pedir feedback, adelante.",
                 },
                 {
                   q: "¿Qué pasa con la Feria?",
-                  a: "Por la noche salimos a la Feria. Trabajo de día, fiesta de noche."
-                }
+                  a: "Por la noche salimos a la Feria. Trabajo de día, fiesta de noche.",
+                },
               ].map((faq, i) => (
                 <div key={i} className="border-l-4 border-neon-blue/50 pl-6">
-                  <p className="text-neon-green font-bold mb-2 text-lg">&gt; {faq.q}</p>
+                  <p className="text-neon-green font-bold mb-2 text-lg">
+                    &gt; {faq.q}
+                  </p>
                   <p className="text-foreground/80">{faq.a}</p>
                 </div>
               ))}
@@ -265,7 +298,10 @@ export default function Home() {
         </section>
 
         {/* Register Section */}
-        <section id="register" className="min-h-screen flex items-center px-4 py-20 bg-dark-gray/30">
+        <section
+          id="register"
+          className="min-h-screen flex items-center px-4 py-20 bg-dark-gray/30"
+        >
           <div className="max-w-4xl mx-auto w-full">
             <div className="mb-8">
               <p className="text-neon-green text-sm mb-2">&gt; ./register.sh</p>
@@ -277,18 +313,21 @@ export default function Home() {
 
             <div className="space-y-6 text-base md:text-lg mb-12">
               <p className="text-foreground/90">
-                Plazas limitadas: <span className="text-neon-green font-bold">10 personas</span>
+                Plazas limitadas:{" "}
+                <span className="text-neon-green font-bold">10 personas</span>
               </p>
 
               <p className="text-foreground/80">
-                Inicia el terminal de registro y responde las preguntas. Es rápido y directo.
+                Inicia el terminal de registro y responde las preguntas. Es
+                rápido y directo.
               </p>
 
               <div className="border border-neon-pink/30 p-6">
                 <p className="text-neon-pink mb-2 font-bold">⚠️ IMPORTANTE</p>
                 <p className="text-foreground/80 text-sm">
-                  Este es un evento pequeño y personal. Buscamos gente que esté realmente construyendo algo
-                  y quiera aprovechar estos días para avanzar en sus proyectos.
+                  Este es un evento pequeño y personal. Buscamos gente que esté
+                  realmente construyendo algo y quiera aprovechar estos días
+                  para avanzar en sus proyectos.
                 </p>
               </div>
             </div>
@@ -302,7 +341,8 @@ export default function Home() {
               </button>
 
               <p className="text-sm text-foreground/60">
-                O envía un email a: <span className="text-neon-blue">byferromero@gmail.com</span>
+                O envía un email a:{" "}
+                <span className="text-neon-blue">byferromero@gmail.com</span>
               </p>
             </div>
           </div>
@@ -313,15 +353,27 @@ export default function Home() {
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <div>
-                <p className="text-neon-green font-bold mb-2">HACKER HOUSE // SEVILLA 2026</p>
-                <p className="text-sm text-foreground/60">19-23 Abril // 10 builders // 1 casa</p>
+                <p className="text-neon-green font-bold mb-2">
+                  HACKER HOUSE // SEVILLA 2026
+                </p>
+                <p className="text-sm text-foreground/60">
+                  19-23 Abril // 10 builders // 1 casa
+                </p>
               </div>
 
               <div className="flex gap-6 text-sm">
-                <a href="mailto:byferromero@gmail.com" className="text-neon-blue hover:text-neon-green transition-colors">
+                <a
+                  href="mailto:byferromero@gmail.com"
+                  className="text-neon-blue hover:text-neon-green transition-colors"
+                >
                   Email
                 </a>
-                <a href="https://linkedin.com/in/byferromero" target="_blank" rel="noopener noreferrer" className="text-neon-blue hover:text-neon-green transition-colors">
+                <a
+                  href="https://linkedin.com/in/byferromero"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-neon-blue hover:text-neon-green transition-colors"
+                >
                   LinkedIn
                 </a>
               </div>
