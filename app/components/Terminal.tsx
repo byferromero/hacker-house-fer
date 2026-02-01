@@ -133,6 +133,7 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isTyping, setIsTyping] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isBootComplete, setIsBootComplete] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -146,9 +147,9 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
     }
   }, [lines]);
 
-  // Focus input when not typing and auto-scroll on mobile
+  // Focus input when not typing, boot complete, and auto-scroll on mobile
   useEffect(() => {
-    if (!isTyping) {
+    if (isBootComplete && !isTyping && !isSubmitting && currentQuestion < questions.length) {
       inputRef.current?.focus();
       // Auto-scroll al input en móvil para que siempre sea visible
       if (isMobile) {
@@ -157,7 +158,7 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
         }, 100);
       }
     }
-  }, [isTyping, currentQuestion, isMobile]);
+  }, [isTyping, isBootComplete, isSubmitting, currentQuestion, isMobile]);
 
   // Reset selected options when question changes
   useEffect(() => {
@@ -194,6 +195,9 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
       ? questions[0].questionMobile
       : questions[0].question;
     await showQuestionWithTyping(questionText);
+
+    // Boot sequence completo, ahora mostrar input
+    setIsBootComplete(true);
   };
 
   const addLine = (line: TerminalLine, delay: number = 0): Promise<void> => {
@@ -402,7 +406,9 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
 
   // Verificar si la pregunta actual tiene opciones (para mostrar botones en móvil)
   const currentQ = questions[currentQuestion];
-  const showOptionButtons = isMobile && currentQ?.options && !isTyping && !isSubmitting && currentQuestion < questions.length;
+  // Solo mostrar controles cuando: boot completo, no typing, no submitting, hay preguntas pendientes
+  const canShowInput = isBootComplete && !isTyping && !isSubmitting && currentQuestion < questions.length;
+  const showOptionButtons = isMobile && currentQ?.options && canShowInput;
 
   return (
     <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-2 sm:p-4">
@@ -490,8 +496,8 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
             </div>
           )}
 
-          {/* Input Line - oculto cuando hay option buttons */}
-          {!isSubmitting && !isTyping && currentQuestion < questions.length && !showOptionButtons && (
+          {/* Input Line - oculto durante boot, typing, y cuando hay option buttons */}
+          {canShowInput && !showOptionButtons && (
             <form onSubmit={handleSubmit} className="flex items-center gap-2 mt-2 py-2 sm:py-0">
               <span style={{ color: 'var(--neon-green)' }}>&gt;</span>
               <input
@@ -510,7 +516,7 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
           )}
 
           {/* Botón enviar visible en móvil para inputs de texto */}
-          {isMobile && !isSubmitting && !isTyping && currentQuestion < questions.length && !showOptionButtons && (
+          {isMobile && canShowInput && !showOptionButtons && (
             <button
               type="button"
               onClick={() => {
