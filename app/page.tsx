@@ -21,7 +21,7 @@ export default function Home() {
               </p>
             </div>
 
-            <h1 className="text-4xl md:text-7xl font-bold mb-6 glitch text-foreground">
+            <h1 className="text-6xl md:text-7xl font-bold mb-6 glitch text-foreground">
               HACKER HOUSE
             </h1>
 
