@@ -30,15 +30,15 @@ export default function Home() {
                 SEVILLA 2026
               </p>
               <p className="text-xl md:text-2xl text-neon-blue mb-2">
-                19 - 23 ABRIL
+                18 - 22 ABRIL
               </p>
               <p className="text-base md:text-lg text-neon-purple">
-                4 días // 10 builders // 1 casa
+                5 días // 10 builders // 1 casa
               </p>
             </div>
 
             <p className="text-base md:text-xl mb-8 text-foreground/80 max-w-2xl">
-              Un retiro de 4 días en Sevilla donde builders construyen
+              Un retiro de 5 días en Sevilla donde builders construyen
               proyectos, comparten código y disfrutan de la Feria de Abril.
             </p>
 
@@ -80,7 +80,7 @@ export default function Home() {
             <div className="space-y-6 text-base md:text-lg">
               <p className="text-foreground/90">
                 <span className="text-neon-purple">$</span> Hacker House es un
-                retiro de 4 días donde builders que construyen cosas se juntan a
+                retiro de 5 días donde builders que construyen cosas se juntan a
                 trabajar en sus proyectos en un ambiente relajado y productivo.
               </p>
 
@@ -139,31 +139,31 @@ export default function Home() {
             <div className="space-y-6">
               {[
                 {
-                  day: "SÁBADO 19",
+                  day: "SÁBADO 18",
                   title: "setup.sh",
                   desc: "Llegadas, trabajo, deporte, dinámica y salida por Sevilla",
                   color: "neon-green",
                 },
                 {
-                  day: "DOMINGO 20",
+                  day: "DOMINGO 19",
                   title: "build.sh",
                   desc: "Trabajo, deporte, dinámica y noche libre",
                   color: "neon-blue",
                 },
                 {
-                  day: "LUNES 21",
+                  day: "LUNES 20",
                   title: "grind.sh",
                   desc: "Deporte, día laboral completo, pescaíto en Feria 🎡",
                   color: "neon-purple",
                 },
                 {
-                  day: "MARTES 22",
+                  day: "MARTES 21",
                   title: "ship.sh",
                   desc: "Trabajo soft, tarde libre, Feria por la noche 🎪",
                   color: "neon-pink",
                 },
                 {
-                  day: "MIÉRCOLES 23",
+                  day: "MIÉRCOLES 22",
                   title: "exit.sh",
                   desc: "Desayuno y despedida. Hasta la próxima, builders.",
                   color: "neon-green",
@@ -263,7 +263,7 @@ export default function Home() {
               {[
                 {
                   q: "¿Cuánto cuesta?",
-                  a: "25€ por noche para cubrir comida, limpieza y gastos. Haremos bote y lo que sobre lo repartimos o lo metemos a la ruleta.",
+                  a: "25€/noche para cubrir comida, limpieza y gastos. Haremos bote y lo que sobre lo repartimos o lo metemos a la ruleta.",
                 },
                 {
                   q: "¿Necesito saber programar?",
@@ -274,7 +274,7 @@ export default function Home() {
                   a: "Tu laptop, cargador, y ganas de construir. Todo lo demás está cubierto (ropa de cama, toallas, etc).",
                 },
                 {
-                  q: "¿Tengo que estar los 4 días completos?",
+                  q: "¿Tengo que estar los 5 días completos?",
                   a: "Idealmente sí, pero entendemos si solo puedes estar algunos días. Indícalo en el formulario.",
                 },
                 {
@@ -357,7 +357,7 @@ export default function Home() {
                   HACKER HOUSE // SEVILLA 2026
                 </p>
                 <p className="text-sm text-foreground/60">
-                  19-23 Abril // 10 builders // 1 casa
+                  18-22 Abril // 10 builders // 1 casa
                 </p>
               </div>
 

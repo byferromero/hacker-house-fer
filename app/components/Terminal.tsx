@@ -96,15 +96,15 @@ const questions: Question[] = [
   },
   {
     id: 'days',
-    question: '> ¿Qué días puedes venir?\n  [1] Viernes 18\n  [2] Sábado 19\n  [3] Domingo 20\n  [4] Lunes 21\n  [5] Martes 22\n> Números separados por comas:',
+    question: '> ¿Qué días puedes venir?\n  [1] Sábado 18\n  [2] Domingo 19\n  [3] Lunes 20\n  [4] Martes 21\n  [5] Miércoles 22\n> Números separados por comas:',
     questionMobile: '> ¿Qué días puedes venir?',
     placeholder: 'Ej: 1,2,3,4,5',
     options: [
-      { value: '1', label: 'Vie 18' },
-      { value: '2', label: 'Sáb 19' },
-      { value: '3', label: 'Dom 20' },
-      { value: '4', label: 'Lun 21' },
-      { value: '5', label: 'Mar 22' }
+      { value: '1', label: 'Sáb 18' },
+      { value: '2', label: 'Dom 19' },
+      { value: '3', label: 'Lun 20' },
+      { value: '4', label: 'Mar 21' },
+      { value: '5', label: 'Mié 22' }
     ],
     multiSelect: true
   },
@@ -133,6 +133,7 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isTyping, setIsTyping] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFormCompleted, setIsFormCompleted] = useState(false); // Evita reenvío del formulario
   const [isBootComplete, setIsBootComplete] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -165,6 +166,15 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
     setSelectedOptions([]);
   }, [currentQuestion]);
 
+  // Listener global de ESC para cerrar el terminal en cualquier momento
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [onClose]);
+
   // Initialize terminal with boot sequence (only once)
   useEffect(() => {
     if (!hasBooted.current) {
@@ -188,6 +198,9 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
       ? '> Responde las preguntas. Toca ENVIAR para continuar.'
       : '> Responde las siguientes preguntas. Presiona ENTER para enviar cada respuesta.';
     await addLine({ type: 'system', text: instructionText }, d(600));
+    await addLine({ type: 'system', text: '> ' }, d(200));
+    await addLine({ type: 'error', text: '⚠️  AVISO: Te pediremos un video corto (<2 min) al final.' }, d(400));
+    await addLine({ type: 'error', text: '   Prepáralo con antelación → grábalo en loom.com' }, d(300));
     await addLine({ type: 'system', text: '> ' }, d(300));
 
     // Show first question with typing effect
@@ -250,7 +263,7 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isTyping) return;
+    if (isTyping || isFormCompleted) return;
 
     const currentQ = questions[currentQuestion];
     const trimmedInput = input.trim();
@@ -386,6 +399,9 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
       await addLine({ type: 'system', text: '>' }, 200);
       await addLine({ type: 'system', text: '> Presiona ESC para cerrar' }, 0);
 
+      // Marcar formulario como completado para evitar reenvíos
+      setIsFormCompleted(true);
+
       console.log('Form Data submitted:', formData);
 
     } catch (error) {
@@ -407,7 +423,7 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
   // Verificar si la pregunta actual tiene opciones (para mostrar botones en móvil)
   const currentQ = questions[currentQuestion];
   // Solo mostrar controles cuando: boot completo, no typing, no submitting, hay preguntas pendientes
-  const canShowInput = isBootComplete && !isTyping && !isSubmitting && currentQuestion < questions.length;
+  const canShowInput = isBootComplete && !isTyping && !isSubmitting && !isFormCompleted && currentQuestion < questions.length;
   const showOptionButtons = isMobile && currentQ?.options && canShowInput;
 
   return (
@@ -416,7 +432,13 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
         {/* Terminal Header - más compacto en móvil */}
         <div className="border-b-2 px-2 py-1 sm:px-4 sm:py-2 flex items-center justify-between" style={{ backgroundColor: 'var(--dark-gray)', borderColor: 'var(--neon-green)' }}>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500"></div>
+            <button
+              onClick={onClose}
+              className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500 hover:bg-red-400 transition-colors hover:shadow-[0_0_8px_rgba(239,68,68,0.7)] cursor-pointer flex items-center justify-center group"
+              aria-label="Cerrar terminal"
+            >
+              <span className="text-[6px] sm:text-[8px] font-bold text-red-900 opacity-0 group-hover:opacity-100 transition-opacity leading-none">✕</span>
+            </button>
             <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-500"></div>
             <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full" style={{ backgroundColor: 'var(--neon-green)' }}></div>
             <span className="ml-2 sm:ml-4 text-xs sm:text-sm font-mono" style={{ color: 'var(--neon-green)' }}>
@@ -424,13 +446,6 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
               <span className="sm:hidden">register</span>
             </span>
           </div>
-          <button
-            onClick={onClose}
-            className="hover:text-red-500 transition-colors text-base sm:text-lg font-bold p-1"
-            style={{ color: 'var(--neon-green)' }}
-          >
-            [X]
-          </button>
         </div>
 
         {/* Terminal Content */}
@@ -535,7 +550,6 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
           <div className="flex justify-between">
             <span>{Math.min(currentQuestion + 1, questions.length)}/{questions.length}</span>
             <span className="hidden sm:inline">ESC para salir</span>
-            <span className="sm:hidden">[X] cerrar</span>
           </div>
         </div>
       </div>
