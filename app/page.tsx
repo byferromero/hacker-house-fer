@@ -142,31 +142,31 @@ export default function Home() {
                   day: "SÁBADO 18",
                   title: "setup.sh",
                   desc: "Llegadas, trabajo, deporte, dinámica y salida por Sevilla",
-                  color: "neon-green",
+                  colorClass: "text-neon-green",
                 },
                 {
                   day: "DOMINGO 19",
                   title: "build.sh",
                   desc: "Trabajo, deporte, dinámica y noche libre",
-                  color: "neon-blue",
+                  colorClass: "text-neon-blue",
                 },
                 {
                   day: "LUNES 20",
                   title: "grind.sh",
-                  desc: "Deporte, día laboral completo, pescaíto en Feria 🎡",
-                  color: "neon-purple",
+                  desc: "Deporte, día laboral completo, pescaíto y Feria de Abril 🎡",
+                  colorClass: "text-neon-purple",
                 },
                 {
                   day: "MARTES 21",
                   title: "ship.sh",
                   desc: "Trabajo soft, tarde libre, Feria por la noche 🎪",
-                  color: "neon-pink",
+                  colorClass: "text-neon-pink",
                 },
                 {
                   day: "MIÉRCOLES 22",
                   title: "exit.sh",
                   desc: "Desayuno y despedida. Hasta la próxima, builders.",
-                  color: "neon-green",
+                  colorClass: "text-neon-green",
                 },
               ].map((day, i) => (
                 <div
@@ -177,7 +177,7 @@ export default function Home() {
                     <span className="text-neon-green font-bold text-lg">
                       {day.day}
                     </span>
-                    <span className={`text-${day.color} text-xl font-mono`}>
+                    <span className={`${day.colorClass} text-xl font-mono`}>
                       ./{day.title}
                     </span>
                   </div>
@@ -235,7 +235,7 @@ export default function Home() {
                   <ul className="space-y-2 text-foreground/80 text-sm">
                     <li>→ Monitores extra disponibles</li>
                     <li>→ Regletas y enchufes</li>
-                    <li>→ Parking disponible</li>
+                    <li>→ Parking en la calle gratuito</li>
                     <li>→ 15 min centro de Sevilla</li>
                   </ul>
                 </div>

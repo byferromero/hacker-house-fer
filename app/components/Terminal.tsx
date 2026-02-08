@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface TerminalLine {
   type: 'system' | 'question' | 'answer' | 'error' | 'loading';
@@ -22,18 +22,23 @@ interface Question {
   multiSelect?: boolean; // Si permite selección múltiple
 }
 
-// Hook para detectar móvil
+// Hook para detectar móvil - devuelve también un ref para usar en closures async
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
+  const isMobileRef = useRef(false);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 640;
+      setIsMobile(mobile);
+      isMobileRef.current = mobile;
+    };
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  return isMobile;
+  return { isMobile, isMobileRef };
 }
 
 const questions: Question[] = [
@@ -138,8 +143,18 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const hasBooted = useRef(false);
-  const isMobile = useIsMobile();
+  const isMountedRef = useRef(true);
+  const { isMobile, isMobileRef } = useIsMobile();
+
+  // Marcar componente como desmontado para cancelar operaciones async pendientes
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -155,7 +170,9 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
       // Auto-scroll al input en móvil para que siempre sea visible
       if (isMobile) {
         setTimeout(() => {
-          inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (isMountedRef.current) {
+            inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
         }, 100);
       }
     }
@@ -166,13 +183,44 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
     setSelectedOptions([]);
   }, [currentQuestion]);
 
-  // Listener global de ESC para cerrar el terminal en cualquier momento
+  // Focus trap + ESC para cerrar: mantiene el foco dentro del modal
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      // Focus trap: mantener Tab dentro del modal
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, input, [href], [tabindex]:not([tabindex="-1"])'
+        );
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          // Shift+Tab: si estamos en el primer elemento, ir al último
+          if (document.activeElement === firstFocusable) {
+            e.preventDefault();
+            lastFocusable?.focus();
+          }
+        } else {
+          // Tab: si estamos en el último elemento, ir al primero
+          if (document.activeElement === lastFocusable) {
+            e.preventDefault();
+            firstFocusable?.focus();
+          }
+        }
+      }
     };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Foco inicial al modal cuando se abre
+    modalRef.current?.focus();
+
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
   // Initialize terminal with boot sequence (only once)
@@ -184,63 +232,80 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
   }, []);
 
   const bootSequence = async () => {
-    // Delays más cortos en móvil para llegar rápido a las preguntas
-    const d = (ms: number) => isMobile ? Math.floor(ms / 2) : ms;
+    // Usar isMobileRef.current para leer el valor real en cada momento (no el de la closure)
+    const d = (ms: number) => isMobileRef.current ? Math.floor(ms / 2) : ms;
 
-    // Boot messages
+    // Boot messages - comprobar isMountedRef antes de cada paso async
+    if (!isMountedRef.current) return;
     await addLine({ type: 'system', text: '> Inicializando sistema de registro...' }, d(300));
-    await addLine({ type: 'loading', text: '> ' }, d(800)); // Loading dots
-    await removeLine(); // Remove loading
+    if (!isMountedRef.current) return;
+    await addLine({ type: 'loading', text: '> ' }, d(800));
+    if (!isMountedRef.current) return;
+    await removeLine();
     await addLine({ type: 'system', text: '> ✓ Conexión establecida' }, d(200));
+    if (!isMountedRef.current) return;
     await addLine({ type: 'system', text: '> Hacker House Registration System v2.0' }, d(400));
+    if (!isMountedRef.current) return;
     await addLine({ type: 'system', text: '> ' }, d(100));
-    const instructionText = isMobile
+    const instructionText = isMobileRef.current
       ? '> Responde las preguntas. Toca ENVIAR para continuar.'
       : '> Responde las siguientes preguntas. Presiona ENTER para enviar cada respuesta.';
     await addLine({ type: 'system', text: instructionText }, d(600));
+    if (!isMountedRef.current) return;
     await addLine({ type: 'system', text: '> ' }, d(200));
     await addLine({ type: 'error', text: '⚠️  AVISO: Te pediremos un video corto (<2 min) al final.' }, d(400));
+    if (!isMountedRef.current) return;
     await addLine({ type: 'error', text: '   Prepáralo con antelación → grábalo en loom.com' }, d(300));
     await addLine({ type: 'system', text: '> ' }, d(300));
 
+    if (!isMountedRef.current) return;
     // Show first question with typing effect
-    const questionText = isMobile && questions[0].questionMobile
+    const questionText = isMobileRef.current && questions[0].questionMobile
       ? questions[0].questionMobile
       : questions[0].question;
     await showQuestionWithTyping(questionText);
 
     // Boot sequence completo, ahora mostrar input
-    setIsBootComplete(true);
+    if (isMountedRef.current) {
+      setIsBootComplete(true);
+    }
   };
 
-  const addLine = (line: TerminalLine, delay: number = 0): Promise<void> => {
+  const addLine = useCallback((line: TerminalLine, delay: number = 0): Promise<void> => {
     return new Promise(resolve => {
       setTimeout(() => {
-        setLines(prev => [...prev, line]);
+        if (isMountedRef.current) {
+          setLines(prev => [...prev, line]);
+        }
         resolve();
       }, delay);
     });
-  };
+  }, []);
 
-  const removeLine = (): Promise<void> => {
+  const removeLine = useCallback((): Promise<void> => {
     return new Promise(resolve => {
       setTimeout(() => {
-        setLines(prev => prev.slice(0, -1));
+        if (isMountedRef.current) {
+          setLines(prev => prev.slice(0, -1));
+        }
         resolve();
       }, 0);
     });
-  };
+  }, []);
 
   const showQuestionWithTyping = async (questionText: string) => {
+    if (!isMountedRef.current) return;
     setIsTyping(true);
     const questionLines = questionText.split('\n');
-    // Typing más rápido en móvil (10ms vs 30ms)
-    const typingSpeed = isMobile ? 10 : 30;
+    // Typing más rápido en móvil (10ms vs 30ms) - usar ref para valor actual
+    const typingSpeed = isMobileRef.current ? 10 : 30;
 
     for (const line of questionLines) {
+      if (!isMountedRef.current) return;
       // Type each character
       let currentText = '';
       for (let i = 0; i < line.length; i++) {
+        if (!isMountedRef.current) return;
         currentText += line[i];
 
         // Update the last line or add new one
@@ -257,7 +322,9 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
       }
     }
 
-    setIsTyping(false);
+    if (isMountedRef.current) {
+      setIsTyping(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -294,7 +361,7 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
 
     // Next question or finish
     if (currentQuestion < questions.length - 1) {
-      const d = (ms: number) => isMobile ? Math.floor(ms / 2) : ms;
+      const d = (ms: number) => isMobileRef.current ? Math.floor(ms / 2) : ms;
       await addLine({ type: 'system', text: '>' }, d(200));
 
       // Show loading while "thinking"
@@ -303,7 +370,7 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
 
       setCurrentQuestion(prev => prev + 1);
       const nextQ = questions[currentQuestion + 1];
-      const questionText = isMobile && nextQ.questionMobile
+      const questionText = isMobileRef.current && nextQ.questionMobile
         ? nextQ.questionMobile
         : nextQ.question;
       await showQuestionWithTyping(questionText);
@@ -348,14 +415,14 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
 
     // Next question or finish
     if (currentQuestion < questions.length - 1) {
-      const d = (ms: number) => isMobile ? Math.floor(ms / 2) : ms;
+      const d = (ms: number) => isMobileRef.current ? Math.floor(ms / 2) : ms;
       await addLine({ type: 'system', text: '>' }, d(200));
       await addLine({ type: 'loading', text: '> ' }, d(400));
       await removeLine();
 
       setCurrentQuestion(prev => prev + 1);
       const nextQ = questions[currentQuestion + 1];
-      const questionText = isMobile && nextQ.questionMobile
+      const questionText = isMobileRef.current && nextQ.questionMobile
         ? nextQ.questionMobile
         : nextQ.question;
       await showQuestionWithTyping(questionText);
@@ -378,7 +445,7 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
       }
 
       // Enviar datos a Google Sheets usando text/plain para evitar CORS preflight
-      await fetch(GOOGLE_SCRIPT_URL, {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain',
@@ -386,7 +453,10 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
         body: JSON.stringify(formData),
       });
 
-      // Con no-cors no podemos leer la respuesta, pero si llega aquí es que funcionó
+      // Verificar que la respuesta fue exitosa
+      if (!response.ok) {
+        throw new Error(`Server responded with status ${response.status}`);
+      }
       await removeLine(); // Remove loading
       await addLine({ type: 'system', text: '> ✓ Registro completado exitosamente' }, 200);
       await addLine({ type: 'system', text: '> ✓ Te contactaremos en 24-48h a: ' + formData.email }, 300);
@@ -414,12 +484,6 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      onClose();
-    }
-  };
-
   // Verificar si la pregunta actual tiene opciones (para mostrar botones en móvil)
   const currentQ = questions[currentQuestion];
   // Solo mostrar controles cuando: boot completo, no typing, no submitting, hay preguntas pendientes
@@ -427,7 +491,14 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
   const showOptionButtons = isMobile && currentQ?.options && canShowInput;
 
   return (
-    <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-2 sm:p-4">
+    <div
+      ref={modalRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Terminal de registro - Hacker House"
+      tabIndex={-1}
+      className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-2 sm:p-4"
+    >
       <div className="w-full max-w-4xl h-[100dvh] sm:h-[80vh] bg-black border-2 flex flex-col terminal-container" style={{ borderColor: 'var(--neon-green)', boxShadow: '0 0 50px rgba(134, 239, 172, 0.3)' }}>
         {/* Terminal Header - más compacto en móvil */}
         <div className="border-b-2 px-2 py-1 sm:px-4 sm:py-2 flex items-center justify-between" style={{ backgroundColor: 'var(--dark-gray)', borderColor: 'var(--neon-green)' }}>
@@ -451,6 +522,8 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
         {/* Terminal Content */}
         <div
           ref={terminalRef}
+          aria-live="polite"
+          aria-relevant="additions"
           className="flex-1 overflow-y-auto p-4 font-mono text-sm space-y-1"
         >
           {lines.map((line, i) => (
@@ -520,7 +593,6 @@ export default function Terminal({ onClose }: { onClose: () => void }) {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
                 placeholder={questions[currentQuestion]?.placeholder}
                 className="flex-1 bg-transparent outline-none font-mono placeholder:opacity-30 text-base sm:text-sm min-h-[44px] sm:min-h-0"
                 style={{ color: 'var(--foreground)' }}
